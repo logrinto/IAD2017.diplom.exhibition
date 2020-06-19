@@ -1,29 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  BG,
   SVG,
   CalcStick,
   DrawStick,
-  DrawGrid,
+  // DrawGrid,
   DrawOutline,
   getRandom
 } from "./logo";
 import { One, Two, Three, outlineDraw } from "./logo/prefs";
-import { useInterval } from "./util/useInterval";
 import "./App.css";
-
-function deepCopy(obj) {
-  if (typeof obj !== "object" || obj === null) {
-    return obj;
-  }
-
-  if (obj instanceof Object) {
-    return Object.keys(obj).reduce((newObj, key) => {
-      newObj[key] = deepCopy(obj[key]);
-      return newObj;
-    }, {});
-  }
-}
 
 const OneOutlinePath = getRandom(outlineDraw);
 const TwoOutlinePath = getRandom(outlineDraw);
@@ -37,11 +22,15 @@ let OneStickEnd = CalcStick(One);
 let TwoStickEnd = CalcStick(Two);
 let ThreeStickEnd = CalcStick(Three);
 
+function easeInOut(t) {
+  return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+}
+
 // start - beginning position
 // e - ending position
-// f - your current value (0–1)
-const getTween = (start, end, f) => {
-  return start + (f / 1) * (end - start);
+// t - your current value (0–1)
+const getTween = (start, end, t) => {
+  return start + (easeInOut(t) / 1) * (end - start);
 };
 
 const blend = (start, end, f) => {
@@ -60,66 +49,61 @@ const blend = (start, end, f) => {
 let OneStick = blend(OneStickStart, OneStickEnd, 0);
 let TwoStick = blend(TwoStickStart, TwoStickEnd, 0);
 let ThreeStick = blend(ThreeStickStart, ThreeStickEnd, 0);
+let skip = false;
 
 function App() {
-  let [count, setCount] = useState(0);
+  const [count, setCount] = useState(0);
 
-  useInterval(() => {
-    // OneStick = blend(allOneStick[0], allOneStick[1], count);
-    // TwoStick = blend(allTwoStick[0], allTwoStick[1], count);
-    // ThreeStick = blend(allThreeStick[0], allThreeStick[1], count);
-    // Your custom logic here
-    OneStick = blend(OneStickStart, OneStickEnd, count);
-    TwoStick = blend(TwoStickStart, TwoStickEnd, count);
-    ThreeStick = blend(ThreeStickStart, ThreeStickEnd, count);
+  // Use useRef for mutable variables that we want to persist
+  // without triggering a re-render on their change
 
-    if (count >= 1) {
-      // allOneStick = [allOneStick[0], CalcStick(One)];
-      // allTwoStick = [allTwoStick[0], CalcStick(Two)];
-      // allThreeStick = [allThreeStick[0], CalcStick(Three)];
+  const requestRef = React.useRef();
+  const previousTimeRef = React.useRef();
 
-      // OneStickStart = OneStickEnd;
-      // TwoStickStart = TwoStickEnd;
-      // ThreeStickStart = ThreeStickEnd;
+  const animate = time => {
+    if (previousTimeRef.current !== undefined) {
+      const deltaTime = time - previousTimeRef.current;
 
-      // OneStickEnd = CalcStick(One);
-      // TwoStickEnd = CalcStick(Two);
-      // ThreeStickEnd = CalcStick(Three);
+      // Pass on a function to the setter of the state
+      // to make sure we always have the latest state
+      setCount(prevCount => {
+        const newState = (prevCount + (deltaTime * 1) / 50) % 50;
 
-      // OneStickStart = CalcStick(One);
-      // TwoStickStart = CalcStick(Two);
-      // ThreeStickStart = CalcStick(Three);
+        OneStick = blend(OneStickStart, OneStickEnd, (1 / 50) * newState);
+        TwoStick = blend(TwoStickStart, TwoStickEnd, (1 / 50) * newState);
+        ThreeStick = blend(ThreeStickStart, ThreeStickEnd, (1 / 50) * newState);
 
-      // OneStickEnd = deepCopy(OneStickStart);
-      OneStickStart = OneStickEnd;
-      OneStickEnd = CalcStick(One);
+        if (newState < prevCount) {
+          if (skip) {
+            skip = !skip; // no idea why it gets two times called
+          } else {
+            skip = !skip; // no idea why it gets two times called
+            OneStickStart = OneStickEnd;
+            OneStickEnd = CalcStick(One);
+            TwoStickStart = TwoStickEnd;
+            TwoStickEnd = CalcStick(Two);
+            ThreeStickStart = ThreeStickEnd;
+            ThreeStickEnd = CalcStick(Three);
+          }
+        }
 
-      TwoStickStart = TwoStickEnd;
-      TwoStickEnd = CalcStick(Two);
-
-      ThreeStickStart = ThreeStickEnd;
-      ThreeStickEnd = CalcStick(Three);
-      // deepCopy(OneStickEnd);
-      // OneStickEnd = CalcStick(One);
-      setCount(0);
-    } else {
-      setCount(count + 1 / 2 / 60);
+        return newState;
+      });
     }
-  }, 1000 / 60);
+    previousTimeRef.current = time;
+    requestRef.current = requestAnimationFrame(animate);
+  };
 
-  // useInterval(() => {
-  //   // Your custom logic here
-  //   setCount(count + 1);
-  // }, 500);
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, []); // Make sure the effect runs only once
 
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+      <div className="App-bg">
         <SVG>
-          {DrawGrid()}
+          {/* DrawGrid() */}
           {DrawStick(OneStick, One.color)}
           {DrawStick(TwoStick, Two.color)}
           {DrawStick(ThreeStick, Three.color)}
@@ -127,7 +111,51 @@ function App() {
           {DrawOutline(TwoStick, Two.color, TwoOutlinePath)}
           {DrawOutline(ThreeStick, Three.color, ThreeOutlinePath)}
         </SVG>
-      </header>
+      </div>
+      <div className="App-title">
+        <div className="App-title--inner">
+          <h1>
+            D&#x200b;i&#x200b;p&#x200b;l&#x200b;o&#x200b;m&#x200b;a&#x200b;u&#x200b;s&#x200b;s&#x200b;t&#x200b;e&#x200b;l&#x200b;l&#x200b;u&#x200b;n&#x200b;g
+          </h1>
+        </div>
+      </div>
+
+      <div className="App-bg">
+        <SVG>
+          {/* DrawGrid() */}
+          {DrawOutline(OneStick, One.color, OneOutlinePath)}
+          {DrawOutline(TwoStick, Two.color, TwoOutlinePath)}
+          {DrawOutline(ThreeStick, Three.color, ThreeOutlinePath)}
+        </SVG>
+      </div>
+
+      <div className="App-text">
+        <div className="App-text--inner">
+          <h3>Diplomausstellung</h3>
+          <p>
+            HF Interaction Design
+            <br />
+            Schule&nbsp;für Gestaltung Zürich
+          </p>
+          <h3>11. 7. 2020 · 13.30­&nbsp;Uhr</h3>
+          <p>Eröffnung &amp; Apéro</p>
+          <h3>Ort</h3>
+          <p>
+            SiloSilo Halle <br />
+            Limmatstrasse&nbsp;254
+            <br />
+            8005&nbsp;Zürich
+          </p>
+
+          <a
+            rel="noopener noreferrer"
+            href="https://forms.gle/U5eY7ohNSczT8S2D7"
+            target="_blank"
+          >
+            Bitte Anmelden
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

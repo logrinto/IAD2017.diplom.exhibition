@@ -1,5 +1,4 @@
 import React from "react";
-import { outlineDraw } from "./prefs";
 
 const GRID_X = 4;
 const GRID_Y = 4;
@@ -8,21 +7,24 @@ const pathExtendedWidth = 0.24;
 const PATHWIDTH = (pathExtendedWidth / 2) * Math.sqrt(2);
 
 const SIZE = 250;
-const MEDIA = 350;
+const MEDIA = 200;
+
+// <rect
+//   width={MEDIA}
+//   height={MEDIA}
+//   style={{ fill: "rgb(255,255,255)", strokeWidth: 0 }}
+// />
 
 export const SVG = ({ children }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     xlinkHref="http://www.w3.org/1999/xlink"
+    preserveAspectRatio="xMinYMin slice"
+    version="1.1"
+    viewBox={`0 0 ${MEDIA} ${MEDIA * 3}`}
     width={MEDIA}
-    height={MEDIA}
+    height={MEDIA * 3}
   >
-    <rect
-      width={MEDIA}
-      height={MEDIA}
-      style={{ fill: "rgb(255,255,255)", strokeWidth: 0 }}
-    />
-
     <g transform={`translate(${(MEDIA - SIZE) / 2},${(MEDIA - SIZE) / 2})`}>
       {children}
     </g>
@@ -203,7 +205,7 @@ export const DrawOutline = (prefs, color, drawPaths) => {
   return (
     <path
       strokeLinecap="square"
-      miterLimit={10}
+      strokeMiterlimit={10}
       stroke={color}
       strokeWidth={(pathExtendedWidth / 2) * SIZE}
       fill="none"
@@ -218,7 +220,6 @@ const randomBetween = (min, max) => {
 
 export const CalcStick = prefs => {
   const { minX, maxX, minY, maxY } = prefs;
-  let final = { start: null, end: null };
 
   const width = randomBetween(minX, maxX);
   const height = randomBetween(minY, maxY);
