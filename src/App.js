@@ -69,22 +69,18 @@ function App() {
       setCount(prevCount => {
         const newState = (prevCount + (deltaTime * 1) / 50) % 50;
 
-        OneStick = blend(OneStickStart, OneStickEnd, (1 / 50) * newState);
-        TwoStick = blend(TwoStickStart, TwoStickEnd, (1 / 50) * newState);
-        ThreeStick = blend(ThreeStickStart, ThreeStickEnd, (1 / 50) * newState);
-
         if (newState < prevCount) {
-          if (skip) {
-            skip = !skip; // no idea why it gets two times called
-          } else {
-            skip = !skip; // no idea why it gets two times called
-            OneStickStart = OneStickEnd;
-            OneStickEnd = CalcStick(One);
-            TwoStickStart = TwoStickEnd;
-            TwoStickEnd = CalcStick(Two);
-            ThreeStickStart = ThreeStickEnd;
-            ThreeStickEnd = CalcStick(Three);
-          }
+          // if (skip) {
+          //   skip = !skip; // no idea why it gets two times called
+          // } else {
+          //   skip = !skip; // no idea why it gets two times called
+          OneStickStart = OneStickEnd;
+          OneStickEnd = CalcStick(One);
+          TwoStickStart = TwoStickEnd;
+          TwoStickEnd = CalcStick(Two);
+          ThreeStickStart = ThreeStickEnd;
+          ThreeStickEnd = CalcStick(Three);
+          // }
         }
 
         return newState;
@@ -97,7 +93,11 @@ function App() {
   useEffect(() => {
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, []); // Make sure the effect runs only once
+  }, [animate]); // Make sure the effect runs only once
+
+  OneStick = blend(OneStickStart, OneStickEnd, (1 / 50) * count);
+  TwoStick = blend(TwoStickStart, TwoStickEnd, (1 / 50) * count);
+  ThreeStick = blend(ThreeStickStart, ThreeStickEnd, (1 / 50) * count);
 
   return (
     <div className="App">
@@ -107,9 +107,6 @@ function App() {
           {DrawStick(OneStick, One.color)}
           {DrawStick(TwoStick, Two.color)}
           {DrawStick(ThreeStick, Three.color)}
-          {DrawOutline(OneStick, One.color, OneOutlinePath)}
-          {DrawOutline(TwoStick, Two.color, TwoOutlinePath)}
-          {DrawOutline(ThreeStick, Three.color, ThreeOutlinePath)}
         </SVG>
       </div>
       <div className="App-title">
