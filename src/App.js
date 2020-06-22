@@ -134,7 +134,7 @@ function App() {
             <br />
             Schule&nbsp;für Gestaltung Zürich
           </p>
-          <h3>11. 7. 2020 · 13.30­&nbsp;Uhr</h3>
+          <h3>11. 7. 2020 · 13.30 – 16­&nbsp;Uhr</h3>
           <p>Eröffnung &amp; Apéro</p>
           <h3>Ort</h3>
           <p>
