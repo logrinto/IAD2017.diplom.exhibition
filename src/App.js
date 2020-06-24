@@ -132,7 +132,15 @@ function App() {
           <p>
             HF Interaction Design
             <br />
-            Schule&nbsp;für Gestaltung Zürich
+            Schule&nbsp;für Gestaltung Zürich{" "}
+            <a
+              class=""
+              rel="noopener noreferrer"
+              href="https://sfgz.ch"
+              target="_blank"
+            >
+              ↗
+            </a>
           </p>
           <h3>11. 7. 2020 · 13.30 – 16­&nbsp;Uhr</h3>
           <p>Eröffnung &amp; Apéro</p>
@@ -141,13 +149,22 @@ function App() {
             SiloSilo Halle <br />
             Limmatstrasse&nbsp;254
             <br />
-            8005&nbsp;Zürich
+            8005&nbsp;Zürich{" "}
+            <a
+              class=""
+              rel="noopener noreferrer"
+              href="https://goo.gl/maps/mPSGSN56B21iZGTJ6"
+              target="_blank"
+            >
+              ↗
+            </a>
           </p>
 
           <a
             rel="noopener noreferrer"
             href="https://forms.gle/U5eY7ohNSczT8S2D7"
             target="_blank"
+            class="a--underline"
           >
             Bitte Anmelden
           </a>

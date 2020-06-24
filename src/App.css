@@ -18,14 +18,21 @@ p {
 a {
   color: #558779;
   display: inline-block;
-  padding-bottom: 0.3em;
-  border-bottom: 2px solid #558779;
   text-decoration: none;
 }
 a:hover {
   color: black;
+}
+
+.a--underline {
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid #558779;
+}
+
+.a--underline:hover {
   border-bottom: 2px solid black;
 }
+
 .App {
   position: relative;
 }
