@@ -2,11 +2,17 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
+import Context from "./Context";
+import { ContextProvider } from "./Context";
+import DatGUI from "./DatGUI";
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ContextProvider>
+      <App />
+      <DatGUI />
+    </ContextProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

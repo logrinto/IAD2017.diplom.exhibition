@@ -7,8 +7,10 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "react": "^16.13.1",
+    "react-dat-gui": "^4.0.3",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "webmidi": "^2.5.1"
   },
   "scripts": {
     "start": "react-scripts start",

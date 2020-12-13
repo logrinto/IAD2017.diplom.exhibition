@@ -15,7 +15,7 @@ const MEDIA = 200;
 //   style={{ fill: "rgb(255,255,255)", strokeWidth: 0 }}
 // />
 
-export const SVG = ({ children }) => (
+export const SVG = ({ children, scale }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     xlinkHref="http://www.w3.org/1999/xlink"
@@ -25,8 +25,10 @@ export const SVG = ({ children }) => (
     width={MEDIA}
     height={MEDIA * 3}
   >
-    <g transform={`translate(${(MEDIA - SIZE) / 2},${(MEDIA - SIZE) / 2})`}>
-      {children}
+    <g transform={`scale(${scale / 100},${scale / 100})`}>
+      <g transform={`translate(${(MEDIA - SIZE) / 2},${(MEDIA - SIZE) / 2})`}>
+        {children}
+      </g>
     </g>
   </svg>
 );
@@ -51,12 +53,12 @@ export const shortenLine = (start, end, smallerLen) => {
     start: {
       // The new point is the starting plus the smaller length.
       x: start.x + smallerXLen,
-      y: start.y + smallerYLen
+      y: start.y + smallerYLen,
     },
     end: {
       x: end.x - smallerXLen,
-      y: end.y - smallerYLen
-    }
+      y: end.y - smallerYLen,
+    },
   };
 };
 
@@ -69,13 +71,13 @@ export const expandLine = (x1, y1, x2, y2, dist) => {
   return [
     {
       x: Math.sin(angle) * dist + x1,
-      y: -Math.cos(angle) * dist + y1
+      y: -Math.cos(angle) * dist + y1,
     },
 
     {
       x: -Math.sin(angle) * dist + x1,
-      y: Math.cos(angle) * dist + y1
-    }
+      y: Math.cos(angle) * dist + y1,
+    },
   ];
 };
 
@@ -141,7 +143,7 @@ export const calcStickOutLine = (p1, p2) => {
     p1r: p1r,
     p1l: p1l,
     p2r: p2r,
-    p2l: p2l
+    p2l: p2l,
   };
 };
 
@@ -172,13 +174,14 @@ export const DrawStick = (prefs, color) => {
       fill="none"
       stroke={color}
       strokeWidth={PATHWIDTH * SIZE}
-      d={`M ${start.x * SIZE},${start.y * SIZE} L ${end.x * SIZE},${end.y *
-        SIZE}`}
+      d={`M ${start.x * SIZE},${start.y * SIZE} L ${end.x * SIZE},${
+        end.y * SIZE
+      }`}
     />
   );
 };
 
-export const getRandom = list => {
+export const getRandom = (list) => {
   return list[Math.floor(Math.random() * list.length)];
 };
 
@@ -218,7 +221,7 @@ const randomBetween = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const CalcStick = prefs => {
+export const CalcStick = (prefs) => {
   const { minX, maxX, minY, maxY } = prefs;
 
   const width = randomBetween(minX, maxX);
@@ -233,23 +236,23 @@ export const CalcStick = prefs => {
     return {
       start: {
         x: (1 / (GRID_X - 1)) * xOffset,
-        y: (1 / (GRID_Y - 1)) * yOffset
+        y: (1 / (GRID_Y - 1)) * yOffset,
       },
       end: {
         x: (1 / (GRID_X - 1)) * (xOffset + width),
-        y: (1 / (GRID_Y - 1)) * (yOffset + height)
-      }
+        y: (1 / (GRID_Y - 1)) * (yOffset + height),
+      },
     };
   } else {
     return {
       start: {
         x: (1 / (GRID_X - 1)) * (xOffset + width),
-        y: (1 / (GRID_Y - 1)) * yOffset
+        y: (1 / (GRID_Y - 1)) * yOffset,
       },
       end: {
         x: (1 / (GRID_X - 1)) * xOffset,
-        y: (1 / (GRID_Y - 1)) * (yOffset + height)
-      }
+        y: (1 / (GRID_Y - 1)) * (yOffset + height),
+      },
     };
   }
 };

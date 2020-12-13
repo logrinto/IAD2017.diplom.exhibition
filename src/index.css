@@ -16,3 +16,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+html .react-dat-gui {
+  position: fixed;
+  right: auto;
+  top: auto;
+  left: 0;
+  bottom: 120px;
+}

@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   SVG,
   CalcStick,
   DrawStick,
   // DrawGrid,
   DrawOutline,
-  getRandom
+  getRandom,
 } from "./logo";
 import { One, Two, Three, outlineDraw } from "./logo/prefs";
 import "./App.css";
+import { Context } from "./Context";
+import Arturia from "./useArturia";
+
+const { usePadPress, useKnobTurn } = Arturia("Arturia BeatStep");
 
 const OneOutlinePath = getRandom(outlineDraw);
 const TwoOutlinePath = getRandom(outlineDraw);
@@ -37,12 +41,12 @@ const blend = (start, end, f) => {
   return {
     start: {
       x: getTween(start.start.x, end.start.x, f),
-      y: getTween(start.start.y, end.start.y, f)
+      y: getTween(start.start.y, end.start.y, f),
     },
     end: {
       x: getTween(start.end.x, end.end.x, f),
-      y: getTween(start.end.y, end.end.y, f)
-    }
+      y: getTween(start.end.y, end.end.y, f),
+    },
   };
 };
 
@@ -53,6 +57,23 @@ let skip = false;
 
 function App() {
   const [count, setCount] = useState(0);
+  const [contextState, contextDispatch] = useContext(Context);
+
+  const { speed, size } = contextState;
+
+  const knobSpeed = useKnobTurn(1, speed, 1, (val) => {
+    contextDispatch({
+      type: "setSpeed",
+      data: val,
+    });
+  });
+
+  const knobSize = useKnobTurn(2, size, 10, (val) => {
+    contextDispatch({
+      type: "setSize",
+      data: val,
+    });
+  });
 
   // Use useRef for mutable variables that we want to persist
   // without triggering a re-render on their change
@@ -60,27 +81,27 @@ function App() {
   const requestRef = React.useRef();
   const previousTimeRef = React.useRef();
 
-  const animate = time => {
+  const animate = (time) => {
     if (previousTimeRef.current !== undefined) {
       const deltaTime = time - previousTimeRef.current;
 
       // Pass on a function to the setter of the state
       // to make sure we always have the latest state
-      setCount(prevCount => {
-        const newState = (prevCount + (deltaTime * 1) / 50) % 50;
+      setCount((prevCount) => {
+        const newState = (prevCount + (deltaTime * 1) / speed) % speed;
 
         if (newState < prevCount) {
-          // if (skip) {
-          //   skip = !skip; // no idea why it gets two times called
-          // } else {
-          //   skip = !skip; // no idea why it gets two times called
-          OneStickStart = OneStickEnd;
-          OneStickEnd = CalcStick(One);
-          TwoStickStart = TwoStickEnd;
-          TwoStickEnd = CalcStick(Two);
-          ThreeStickStart = ThreeStickEnd;
-          ThreeStickEnd = CalcStick(Three);
-          // }
+          if (skip) {
+            skip = !skip; // no idea why it gets two times called
+          } else {
+            skip = !skip; // no idea why it gets two times called
+            OneStickStart = OneStickEnd;
+            OneStickEnd = CalcStick(One);
+            TwoStickStart = TwoStickEnd;
+            TwoStickEnd = CalcStick(Two);
+            ThreeStickStart = ThreeStickEnd;
+            ThreeStickEnd = CalcStick(Three);
+          }
         }
 
         return newState;
@@ -95,14 +116,14 @@ function App() {
     return () => cancelAnimationFrame(requestRef.current);
   }, [animate]); // Make sure the effect runs only once
 
-  OneStick = blend(OneStickStart, OneStickEnd, (1 / 50) * count);
-  TwoStick = blend(TwoStickStart, TwoStickEnd, (1 / 50) * count);
-  ThreeStick = blend(ThreeStickStart, ThreeStickEnd, (1 / 50) * count);
+  OneStick = blend(OneStickStart, OneStickEnd, (1 / speed) * count);
+  TwoStick = blend(TwoStickStart, TwoStickEnd, (1 / speed) * count);
+  ThreeStick = blend(ThreeStickStart, ThreeStickEnd, (1 / speed) * count);
 
   return (
     <div className="App">
       <div className="App-bg">
-        <SVG>
+        <SVG scale={size}>
           {/* DrawGrid() */}
           {DrawStick(OneStick, One.color)}
           {DrawStick(TwoStick, Two.color)}
@@ -118,7 +139,7 @@ function App() {
       </div>
 
       <div className="App-bg">
-        <SVG>
+        <SVG scale={size}>
           {/* DrawGrid() */}
           {DrawOutline(OneStick, One.color, OneOutlinePath)}
           {DrawOutline(TwoStick, Two.color, TwoOutlinePath)}
